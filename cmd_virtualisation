@@ -1,0 +1,12 @@
+docker pull tshibanda/webservice5.jar
+docker build -t tshibanda/webservice5.jar .
+cd ./mysql-db
+docker build -t mysql-img .
+docker run --name mysql-docker -p 3306:3306 -d mysql-img
+cd ..
+docker network disconnect project_network mysql-docker
+docker network disconnect project_network webservice5-docker
+docker network rm project_network
+docker network create --driver bridge project_network
+docker network connect project_network mysql-docker
+docker run -p 8761:8761 --name webservice5-docker --network project_network -d tshibanda/webservice5.jar
